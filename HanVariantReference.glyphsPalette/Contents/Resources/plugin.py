@@ -131,9 +131,9 @@ class HanVariantReference(PalettePlugin):
         self.max = 900
         # Glyphs uses GSPaletteView to attach the palette controller and resize handle.
         self.dialog = objc.lookUpClass('GSPaletteView').alloc().initWithFrame_(NSMakeRect(0, 0, 250, 350))
-        self.dialog.setAutoresizingMask_(NSViewWidthSizable | NSViewHeightSizable)
+        self.dialog.setTranslatesAutoresizingMaskIntoConstraints_(False)
         # Keep the native resize handle at the bottom clear of interactive controls.
-        self.scroll = NSScrollView.alloc().initWithFrame_(NSMakeRect(0, 58, 250, 292))
+        self.scroll = NSScrollView.alloc().initWithFrame_(NSMakeRect(0, 52, 250, 298))
         self.scroll.setHasVerticalScroller_(True)
         self.scroll.setDrawsBackground_(False)
         self.scroll.setAutoresizingMask_(NSViewWidthSizable | NSViewHeightSizable)
@@ -143,7 +143,7 @@ class HanVariantReference(PalettePlugin):
         self.content = NSView.alloc().initWithFrame_(NSMakeRect(0, 0, 250, 320))
         self.scroll.setDocumentView_(self.content)
         self.dialog.addSubview_(self.scroll)
-        self.slider = NSSlider.alloc().initWithFrame_(NSMakeRect(14, 29, 222, 23))
+        self.slider = NSSlider.alloc().initWithFrame_(NSMakeRect(14, 20, 222, 28))
         self.slider.setMinValue_(MIN_GRID_SIZE)
         self.slider.setMaxValue_(MAX_GRID_SIZE)
         self.slider.setDoubleValue_(self.size)
