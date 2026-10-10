@@ -129,7 +129,8 @@ class HanVariantReference(PalettePlugin):
         self.size = restored_grid_size(Glyphs.defaults.get(SIZE_DEFAULTS_KEY))
         self.min = 180
         self.max = 900
-        self.dialog = NSView.alloc().initWithFrame_(NSMakeRect(0, 0, 250, 350))
+        # Glyphs uses GSPaletteView to attach the palette controller and resize handle.
+        self.dialog = objc.lookUpClass('GSPaletteView').alloc().initWithFrame_(NSMakeRect(0, 0, 250, 350))
         self.scroll = NSScrollView.alloc().initWithFrame_(NSMakeRect(0, 30, 250, 320))
         self.scroll.setHasVerticalScroller_(True)
         self.scroll.setDrawsBackground_(False)
