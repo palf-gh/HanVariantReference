@@ -1,5 +1,6 @@
 # encoding: utf-8
 """Compact Han reference grid for Glyphs 3."""
+import math
 import os
 import subprocess
 import threading
@@ -17,6 +18,10 @@ from GlyphsApp.plugins import PalettePlugin
 
 DATA_FILE = os.path.join(os.path.dirname(__file__), 'IVD_Sequences.txt')
 CACHE_DIR = os.path.expanduser('~/Library/Caches/HanVariantReference')
+SIZE_DEFAULTS_KEY = 'com.palf.HanVariantReference.gridSize'
+MIN_GRID_SIZE = 40
+MAX_GRID_SIZE = 156
+DEFAULT_GRID_SIZE = 104
 REGIONS = [('JP', 'j'), ('CN', 'g'), ('TW', 't'), ('HK', 'h'), ('KR', 'k')]
 
 STRINGS = {
@@ -29,6 +34,15 @@ STRINGS = {
 
 def tr(key):
     return Glyphs.localize(STRINGS[key])
+
+def restored_grid_size(value):
+    try:
+        size = float(value)
+    except (TypeError, ValueError):
+        return DEFAULT_GRID_SIZE
+    if not math.isfinite(size):
+        return DEFAULT_GRID_SIZE
+    return max(MIN_GRID_SIZE, min(MAX_GRID_SIZE, int(round(size))))
 
 def load_ivd():
     result = defaultdict(list)
@@ -82,7 +96,7 @@ class HanVariantReference(PalettePlugin):
         self.missing = set()
         self.loading = set()
         self.last_width = 0
-        self.size = 104
+        self.size = restored_grid_size(Glyphs.defaults.get(SIZE_DEFAULTS_KEY))
         self.dialog = NSView.alloc().initWithFrame_(NSMakeRect(0, 0, 250, 350))
         self.scroll = NSScrollView.alloc().initWithFrame_(NSMakeRect(0, 30, 250, 320))
         self.scroll.setHasVerticalScroller_(True)
@@ -95,8 +109,8 @@ class HanVariantReference(PalettePlugin):
         self.scroll.setDocumentView_(self.content)
         self.dialog.addSubview_(self.scroll)
         self.slider = NSSlider.alloc().initWithFrame_(NSMakeRect(14, 3, 222, 23))
-        self.slider.setMinValue_(64)
-        self.slider.setMaxValue_(156)
+        self.slider.setMinValue_(MIN_GRID_SIZE)
+        self.slider.setMaxValue_(MAX_GRID_SIZE)
         self.slider.setDoubleValue_(self.size)
         self.slider.setContinuous_(True)
         self.slider.setAutoresizingMask_(NSViewWidthSizable | NSViewMaxYMargin)
@@ -216,7 +230,7 @@ class HanVariantReference(PalettePlugin):
         size = int(self.size)
         for image in self.images.values():
             image.setSize_((size, size))
-        gap = 6
+        gap = 4 if size < 64 else 6
         cols = max(1, int((width - 16 + gap) // (size + gap)))
         regions, variants = self.visible_items()
         sections = []
@@ -251,7 +265,8 @@ class HanVariantReference(PalettePlugin):
             self.render()
 
     def sizeChanged_(self, sender):
-        self.size = int(sender.doubleValue())
+        self.size = restored_grid_size(sender.doubleValue())
+        Glyphs.defaults[SIZE_DEFAULTS_KEY] = self.size
         self.render()
 
     @objc.python_method

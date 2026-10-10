@@ -6,7 +6,7 @@
 
 A Glyphs 3 Palette plug-in for comparing regional Han glyph forms and registered ideographic variation sequences (IVS). It displays GlyphWiki SVG outlines for Japan, mainland China, Taiwan, Hong Kong, and Korea when available, plus IVS entries from the Unicode Ideographic Variation Database. Missing GlyphWiki images are hidden.
 
-The grid changes its column count with the Palette width. The slider at the bottom changes image size. Double-click an IVS image to insert the matching **existing** glyph after the active glyph in the current Edit tab. For example, VS17 for `uni76F4` looks for `uni76F4.ucE0100`. The plug-in does not create missing glyphs.
+The grid changes its column count with the Palette width. The slider at the bottom changes image size from 40 to 156 points and remembers the chosen size across Glyphs restarts. Double-click an IVS image to insert the matching **existing** glyph after the active glyph in the current Edit tab. For example, VS17 for `uni76F4` looks for `uni76F4.ucE0100`. The plug-in does not create missing glyphs.
 
 **Install:** Download or clone this repository. Put `HanVariantReference.glyphsPalette` in `~/Library/Application Support/Glyphs 3/Plugins/`, or place a symbolic link to it there. Restart Glyphs 3 and open the Palette.
 
@@ -16,7 +16,7 @@ The grid changes its column count with the Palette width. The slider at the bott
 
 Glyphs 3 の Palette で、漢字の地域別字形と登録済み IVS を比較するプラグインです。GlyphWiki に画像がある場合、日本・中国大陸・台湾・香港・韓国の SVG 字形を表示します。IVS の一覧には Unicode の IVD を使用し、GlyphWiki に画像がない項目は表示しません。
 
-パレットの幅に合わせて列数が変わり、下部のスライダーで字形の大きさを変更できます。IVS の画像をダブルクリックすると、現在の編集タブで選択中のグリフの直後に、対応する**既存の**グリフを追加します。たとえば `uni76F4` の VS17 なら `uni76F4.ucE0100` を探します。存在しないグリフは作成しません。
+パレットの幅に合わせて列数が変わり、下部のスライダーで字形の大きさを40〜156ポイントに変更できます。設定は Glyphs の再起動後も保持されます。IVS の画像をダブルクリックすると、現在の編集タブで選択中のグリフの直後に、対応する**既存の**グリフを追加します。たとえば `uni76F4` の VS17 なら `uni76F4.ucE0100` を探します。存在しないグリフは作成しません。
 
 **インストール:** このリポジトリをダウンロードまたはクローンし、`HanVariantReference.glyphsPalette` を `~/Library/Application Support/Glyphs 3/Plugins/` に置くか、そこからシンボリックリンクを張ってください。Glyphs 3 を再起動して Palette を開きます。
 
@@ -26,7 +26,7 @@ Glyphs 3 の Palette で、漢字の地域別字形と登録済み IVS を比較
 
 这是一个 Glyphs 3 调色板插件，用于比较汉字的地区字形和已登记的表意文字异体字序列（IVS）。如果 GlyphWiki 提供图像，插件会显示日本、中国大陆、台湾、香港和韩国的 SVG 字形；IVS 列表来自 Unicode 表意文字异体字数据库。没有 GlyphWiki 图像的项目不会显示。
 
-网格列数随调色板宽度变化，底部滑块可调整字形大小。双击 IVS 图像，会在当前编辑标签的活动字形后插入对应的**已有**字形。例如，`uni76F4` 的 VS17 对应 `uni76F4.ucE0100`。插件不会创建缺失的字形。
+网格列数随调色板宽度变化，底部滑块可将字形大小调整为 40–156 点，设置在重启 Glyphs 后仍会保留。双击 IVS 图像，会在当前编辑标签的活动字形后插入对应的**已有**字形。例如，`uni76F4` 的 VS17 对应 `uni76F4.ucE0100`。插件不会创建缺失的字形。
 
 **安装：** 下载或克隆本仓库，将 `HanVariantReference.glyphsPalette` 放入 `~/Library/Application Support/Glyphs 3/Plugins/`，也可以在该目录创建指向插件的符号链接。重启 Glyphs 3，然后打开调色板。
 
@@ -36,7 +36,7 @@ Glyphs 3 の Palette で、漢字の地域別字形と登録済み IVS を比較
 
 Glyphs 3 팔레트에서 한자의 지역별 자형과 등록된 표의문자 변형 시퀀스(IVS)를 비교하는 플러그인입니다. GlyphWiki에 이미지가 있으면 일본, 중국 본토, 대만, 홍콩, 한국의 SVG 자형을 보여 줍니다. IVS 목록은 Unicode 표의문자 변형 데이터베이스를 사용하며, GlyphWiki 이미지가 없는 항목은 표시하지 않습니다.
 
-팔레트 너비에 따라 격자 열 수가 바뀌고, 아래쪽 슬라이더로 자형 크기를 조절할 수 있습니다. IVS 이미지를 두 번 클릭하면 현재 편집 탭의 활성 글리프 바로 뒤에 대응하는 **기존** 글리프를 삽입합니다. 예를 들어 `uni76F4`의 VS17은 `uni76F4.ucE0100`을 찾습니다. 없는 글리프는 새로 만들지 않습니다.
+팔레트 너비에 따라 격자 열 수가 바뀌고, 아래쪽 슬라이더로 자형 크기를 40~156포인트로 조절할 수 있으며, Glyphs를 다시 시작해도 설정이 유지됩니다. IVS 이미지를 두 번 클릭하면 현재 편집 탭의 활성 글리프 바로 뒤에 대응하는 **기존** 글리프를 삽입합니다. 예를 들어 `uni76F4`의 VS17은 `uni76F4.ucE0100`을 찾습니다. 없는 글리프는 새로 만들지 않습니다.
 
 **설치:** 저장소를 다운로드하거나 복제한 뒤 `HanVariantReference.glyphsPalette`를 `~/Library/Application Support/Glyphs 3/Plugins/`에 넣거나 해당 위치에 심볼릭 링크를 만듭니다. Glyphs 3을 다시 시작하고 팔레트를 엽니다.
 
