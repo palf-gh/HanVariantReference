@@ -2,6 +2,7 @@
 """Compact Han reference grid for Glyphs 3."""
 import math
 import os
+import re
 import subprocess
 import threading
 import time
@@ -28,7 +29,6 @@ REGIONS = [('JP', 'j'), ('CN', 'g'), ('TW', 't'), ('HK', 'h'), ('KR', 'k')]
 STRINGS = {
     'name': {'en': 'Han Variant Reference', 'ja': '漢字字形リファレンス', 'zh-Hans': '汉字字形参考', 'zh-Hant': '漢字字形參考', 'ko': '한자 자형 참고'},
     'regional': {'en': 'Regional forms', 'ja': '地域別字形', 'zh-Hans': '地区字形', 'zh-Hant': '地區字形', 'ko': '지역별 자형'},
-    'missing_glyph': {'en': 'Glyph not found in font: %s', 'ja': 'フォントにグリフがありません: %s', 'zh-Hans': '字体中没有该字形：%s', 'zh-Hant': '字型中沒有該字形：%s', 'ko': '폰트에 글리프가 없습니다: %s'},
     'slider': {'en': 'Grid size', 'ja': 'グリッドサイズ', 'zh-Hans': '网格大小', 'zh-Hant': '網格大小', 'ko': '격자 크기'},
     'insert': {'en': 'Double-click to insert %s', 'ja': 'ダブルクリックで %s を追加', 'zh-Hans': '双击插入 %s', 'zh-Hant': '按兩下插入 %s', 'ko': '두 번 클릭하여 %s 삽입'},
 }
@@ -60,6 +60,29 @@ def load_ivd():
 def glyphwiki_name(base, selector=None, region=None):
     stem = 'u%x' % base
     return '%s-u%x' % (stem, selector) if selector is not None else '%s-%s' % (stem, region)
+
+
+def reference_for_glyph(font, glyph):
+    """Resolve a suffixed glyph to its unsuffixed reference character."""
+    if glyph is None:
+        return None, None
+    base_name = glyph.name.split('.', 1)[0]
+    source = glyph
+    if base_name != glyph.name:
+        try:
+            source = font.glyphs[base_name] or glyph
+        except KeyError:
+            source = glyph
+    unicode_hex = getattr(source, 'unicode', None) or getattr(glyph, 'unicode', None)
+    if unicode_hex:
+        try:
+            return int(unicode_hex, 16), base_name
+        except ValueError:
+            pass
+    match = re.fullmatch(r'uni([0-9A-Fa-f]{4})|u([0-9A-Fa-f]{5,6})', base_name)
+    if match:
+        return int(match.group(1) or match.group(2), 16), base_name
+    return None, base_name
 
 
 def variant_glyph_name(base_name, selector):
@@ -152,12 +175,12 @@ class HanVariantReference(PalettePlugin):
                 tab = None
             layer = tab.activeLayer() if tab else None
             glyph = layer.parent if layer else None
-            base = int(glyph.unicode, 16) if glyph and glyph.unicode else None
+            base, base_name = reference_for_glyph(tab.parent, glyph) if tab else (None, None)
             width = self.available_width()
-            if base != self.current_base or tab is not self.current_tab:
+            if base != self.current_base or base_name != self.base_name or tab is not self.current_tab:
                 self.current_base = base
                 self.current_tab = tab
-                self.base_name = glyph.name if glyph else None
+                self.base_name = base_name
                 self.request_images()
                 self.render()
             elif abs(width - self.last_width) > 2:
