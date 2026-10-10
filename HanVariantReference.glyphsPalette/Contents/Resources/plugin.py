@@ -4,6 +4,7 @@ import math
 import os
 import subprocess
 import threading
+import time
 from collections import defaultdict
 
 import objc
@@ -13,7 +14,7 @@ from AppKit import (NSApp, NSButton, NSFont, NSImage, NSImageAbove,
                     NSViewHeightSizable, NSViewMaxYMargin, NSViewFrameDidChangeNotification)
 from PyObjCTools.AppHelper import callAfter
 from Foundation import NSNotificationCenter
-from GlyphsApp import Glyphs, GSEditViewController, UPDATEINTERFACE
+from GlyphsApp import Glyphs, GSEditViewController, GSGlyph, UPDATEINTERFACE
 from GlyphsApp.plugins import PalettePlugin
 
 DATA_FILE = os.path.join(os.path.dirname(__file__), 'IVD_Sequences.txt')
@@ -62,16 +63,20 @@ def glyphwiki_name(base, selector=None, region=None):
 
 
 def variant_glyph_name(base_name, selector):
-    return '%s.uc%X' % (base_name.split('.', 1)[0], selector)
+    return '%s.uv%03d' % (base_name.split('.', 1)[0], selector - 0xE0100 + 17)
 
 
 def append_variant_to_tab(tab, font, base_name, selector):
     target = variant_glyph_name(base_name, selector)
-    glyph = font.glyphs[target]
+    try:
+        glyph = font.glyphs[target]
+    except KeyError:
+        glyph = None
     if glyph is None:
-        raise ValueError(tr('missing_glyph') % target)
+        glyph = GSGlyph(target)
+        font.glyphs.append(glyph)
     layers = list(tab.layers)
-    index = min(max(int(tab.layersCursor) + 1, 0), len(layers))
+    index = min(max(int(tab.layersCursor), 0), len(layers))
     active = tab.activeLayer()
     master_id = getattr(active, 'associatedMasterId', None)
     try:
@@ -96,6 +101,7 @@ class HanVariantReference(PalettePlugin):
         self.missing = set()
         self.loading = set()
         self.last_width = 0
+        self.last_variant_click = None
         self.size = restored_grid_size(Glyphs.defaults.get(SIZE_DEFAULTS_KEY))
         self.dialog = NSView.alloc().initWithFrame_(NSMakeRect(0, 0, 250, 350))
         self.scroll = NSScrollView.alloc().initWithFrame_(NSMakeRect(0, 30, 250, 320))
@@ -305,11 +311,22 @@ class HanVariantReference(PalettePlugin):
         self.missing.add(name)
 
     def tileClicked_(self, sender):
-        if sender.tag() < 0 or NSApp.currentEvent().clickCount() < 2:
+        selector = int(sender.tag())
+        if selector < 0:
             return
+        now = time.monotonic()
+        previous = self.last_variant_click
+        event = NSApp.currentEvent()
+        is_double_click = bool(event and event.clickCount() >= 2)
+        if previous and previous[0] == selector and now - previous[1] <= 0.5:
+            is_double_click = True
+        if not is_double_click:
+            self.last_variant_click = (selector, now)
+            return
+        self.last_variant_click = None
         try:
             if self.current_tab is not None:
-                append_variant_to_tab(self.current_tab, self.current_tab.parent, self.base_name, sender.tag())
+                append_variant_to_tab(self.current_tab, self.current_tab.parent, self.base_name, selector)
         except Exception as error:
             Glyphs.showNotification(tr('name'), str(error))
 
