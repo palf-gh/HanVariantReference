@@ -124,8 +124,11 @@ class HanVariantReference(PalettePlugin):
         self.missing = set()
         self.loading = set()
         self.last_width = 0
+        self.last_height = 0
         self.last_variant_click = None
         self.size = restored_grid_size(Glyphs.defaults.get(SIZE_DEFAULTS_KEY))
+        self.min = 180
+        self.max = 900
         self.dialog = NSView.alloc().initWithFrame_(NSMakeRect(0, 0, 250, 350))
         self.scroll = NSScrollView.alloc().initWithFrame_(NSMakeRect(0, 30, 250, 320))
         self.scroll.setHasVerticalScroller_(True)
@@ -160,12 +163,6 @@ class HanVariantReference(PalettePlugin):
             NSNotificationCenter.defaultCenter().removeObserver_(self)
         except Exception:
             pass
-
-    def minHeight(self):
-        return 180
-
-    def maxHeight(self):
-        return 650
 
     @objc.python_method
     def update(self, sender):
@@ -273,6 +270,7 @@ class HanVariantReference(PalettePlugin):
             rows = (len(items) + cols - 1) // cols
             height += 20 + rows * (tile_height + gap) + 4
         viewport_height = max(100, int(self.scroll.contentView().bounds().size.height))
+        self.last_height = viewport_height
         height = max(height, viewport_height)
         self.content.setFrame_(NSMakeRect(0, 0, width, height))
         y = height - 8
@@ -290,7 +288,9 @@ class HanVariantReference(PalettePlugin):
         self.scroll.reflectScrolledClipView_(self.scroll.contentView())
 
     def scrollFrameChanged_(self, notification):
-        if abs(self.available_width() - self.last_width) > 2:
+        viewport_height = max(100, int(self.scroll.contentView().bounds().size.height))
+        if (abs(self.available_width() - self.last_width) > 2 or
+                abs(viewport_height - self.last_height) > 2):
             self.render()
 
     def sizeChanged_(self, sender):
